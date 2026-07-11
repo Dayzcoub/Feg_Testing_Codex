@@ -1,83 +1,103 @@
-# PACK.IT LED Pattern — тестовый FFGL Source для Resolume Arena/Avenue
+# PACK.IT LED Pattern v0.2a — FFGL Source для Resolume Arena/Avenue
 
-Это первая тестовая версия процедурного генератора рисунков из светящихся LED-точек.
+Процедурный генератор бесконечных LED-мозаик. Плагин сам создаёт изображение и не требует видеоклипа.
 
-## Что уже есть
+## Реализовано в v0.2a
 
-- 6 фигур: Kaleidoscope, Rings, Star, Checker, Waves, Tunnel;
-- 4 настраиваемых цвета;
-- плотность LED-точек и их размер;
-- скорость движения и вращения;
-- масштаб рисунка;
-- симметрия 2/4/6/8/10/12;
-- внутренняя частота анимации 60/50/30/25/15/10/5 FPS;
-- Motion Blur;
-- LED Glow.
+- 12 паттернов: Kaleidoscope, Rings, Star Burst, Checker, Waves, Tunnel, Diamond Grid, Hex Flower, Plasma, Orbit, Pulse Rings, Pixel Tunnel;
+- 11 форм пикселя: Circle, Square, Rounded Square, Diamond, Triangle, Hexagon, Star, Clover, Cross, Capsule, Ring;
+- Pixel Density, Pixel Size, Rotation, Rotation Speed, Softness, Roundness, Inner Cut, Stretch X/Y;
+- 2/3/4 активных цвета, Palette Shift, Palette Speed, Colour Blend, Saturation, Brightness;
+- режимы движения Free, BPM и Paused;
+- BPM Division, BPM Multiplier, Phase Offset и Beat Pulse с выбором цели;
+- Smooth или ступенчатые 60/50/30/25/24/15/12/10/8/5 FPS;
+- Frame Interpolation;
+- Motion Blur с 4/8/12 сэмплами;
+- Glow, Glow Size, Contrast, Invert, Mirror X/Y;
+- прозрачный, чёрный или пользовательский фон;
+- логическая группировка параметров в Resolume;
+- сохранение исходных ID параметров v0.1 для совместимости композиций.
 
-Это именно **Source**, то есть он создаёт изображение сам и не требует загруженного видео.
+## Установка готовой сборки
 
-## Самый простой способ собрать и установить
+### Windows
 
-Нужны Windows 10/11 и Resolume Arena/Avenue 7.
+Скопируйте `PackItLEDPattern.dll` в папку FFGL-плагинов, обычно:
 
-1. Установите **Visual Studio 2022 Community** или **Build Tools 2022**.
-2. В установщике обязательно отметьте workload **Desktop development with C++ / Разработка классических приложений на C++**.
-3. Установите Python 3 и включите пункт **Add Python to PATH**.
-4. Распакуйте этот архив в обычную папку без кириллицы в пути, например `C:\PackItLEDPattern`.
-5. Нажмите правой кнопкой на `build_and_install.ps1` → **Запустить с помощью PowerShell**.
-6. Если Windows блокирует запуск, откройте PowerShell в папке и выполните:
+```text
+Документы\Resolume\Extra Effects
+```
+
+### macOS
+
+Скопируйте целиком `PackItLEDPattern.bundle` в папку, указанную в:
+
+```text
+Resolume Arena → Preferences → Video → FFGL Directories
+```
+
+На разных установках она может называться:
+
+```text
+~/Documents/Resolume/Extra Effects
+```
+
+или:
+
+```text
+~/Documents/Resolume Arena/Extra Effects
+```
+
+После замены плагина полностью перезапустите Resolume.
+
+## Запуск
+
+1. Откройте панель **Sources**.
+2. Найдите `PK LED Pattern`.
+3. Перетащите Source в свободную ячейку клипа.
+4. Настройки появятся в панели Clip.
+
+## Первый тест v0.2a
+
+```text
+Pattern: Hex Flower
+Pixel Shape: Clover
+Pixel Density: 55–75
+Pixel Size: 70–85%
+Motion Mode: Free
+Animation FPS: 30
+Motion Blur: 15–25%
+Glow: 30–45%
+```
+
+Для BPM:
+
+```text
+Motion Mode: BPM
+BPM Division: 1
+Beat Pulse: 20–35%
+Beat Pulse Target: Pixel Size или All
+```
+
+## Известные ограничения v0.2a
+
+- Это первая alpha-сборка новой архитектуры; все паттерны и формы нужно визуально проверить внутри Resolume на реальной GPU.
+- Motion Blur остаётся временным multisample blur без feedback-буфера и длинных trails.
+- Цвета по-прежнему представлены отдельными R/G/B-параметрами, но теперь собраны в группу Colours.
+- Preset-файлы Resolume пока не входят в архив; рекомендуемые комбинации приведены выше.
+- FFT-аудиореактивность и feedback trails перенесены в v0.2b.
+
+## Самостоятельная сборка Windows
+
+Нужны Visual Studio/Build Tools 2022 с workload **Desktop development with C++** и Python 3.
 
 ```powershell
 Set-ExecutionPolicy -Scope Process Bypass
 .\build_and_install.ps1
 ```
 
-Скрипт скачает официальный FFGL SDK Resolume, соберёт 64-битную DLL и положит её в:
-
-```text
-Документы\Resolume\Extra Effects\PackItLEDPattern.dll
-```
-
-## Как добавить генератор в Resolume Arena
-
-1. Запустите или перезапустите Resolume Arena.
-2. Справа откройте панель **Sources**.
-3. В поиске введите `PK LED Pattern`.
-4. Перетащите источник в свободную ячейку клипа.
-5. Выберите созданный клип.
-6. Параметры генератора появятся на панели Clip.
-
-Если источник не появился:
-
-1. Откройте `Application → Preferences → Video`.
-2. В разделе **FFGL Directories** убедитесь, что добавлена папка:
-   `Документы\Resolume\Extra Effects`.
-3. Нажмите rescan/reload plugins либо перезапустите Resolume.
-4. Проверьте, что используется 64-битная версия Resolume 7.
-
-## Рекомендуемый первый тест
-
-- Pattern: `Kaleidoscope`;
-- LED Density: около 60–80;
-- Dot Size: 70–85%;
-- Symmetry: 8;
-- Animation FPS: 30;
-- Motion Speed: немного правее центра;
-- Rotation Speed: немного правее центра;
-- Motion Blur: 15–30%;
-- LED Glow: 30–50%.
-
-## Ограничения тестовой версии
-
-- Motion Blur сейчас сделан как восемь временных сэмплов внутри шейдера, без отдельного feedback-буфера.
-- Нет аудиореактивности, BPM Sync, сохранённых пресетов и настоящих длинных trails.
-- Цвета показаны в Resolume как отдельные R/G/B-параметры; в следующей версии их можно объединить и аккуратнее сгруппировать.
-- DLL должна быть собрана на Windows.
+Скрипт скачает официальный FFGL SDK Resolume, соберёт DLL и установит её в стандартную папку Extra Effects.
 
 ## Удаление
 
-Закройте Resolume и удалите:
-
-```text
-Документы\Resolume\Extra Effects\PackItLEDPattern.dll
-```
+Закройте Resolume и удалите `PackItLEDPattern.dll` или `PackItLEDPattern.bundle` из выбранной FFGL Directory.
