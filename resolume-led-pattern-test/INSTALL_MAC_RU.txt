@@ -1,0 +1,55 @@
+PACK.IT LED Pattern v0.1 — установка на macOS
+================================================
+
+Сборка Universal: Apple Silicon arm64 + Intel x86_64.
+Минимальная версия macOS: 11.0.
+
+1. Полностью закройте Resolume Arena/Avenue.
+2. Распакуйте ZIP-архив.
+3. В Finder нажмите Cmd + Shift + G.
+4. Вставьте путь:
+
+   ~/Documents/Resolume/Extra Effects
+
+5. Если папки Extra Effects нет — создайте её.
+6. Скопируйте туда целиком папку:
+
+   PackItLEDPattern.bundle
+
+7. Запустите Resolume.
+8. Откройте Sources и найдите:
+
+   PK LED Pattern
+
+9. Перетащите источник в свободную ячейку клипа.
+
+ЕСЛИ ПЛАГИН НЕ ПОЯВИЛСЯ
+-----------------------
+
+Откройте Terminal и выполните:
+
+xattr -dr com.apple.quarantine "$HOME/Documents/Resolume/Extra Effects/PackItLEDPattern.bundle"
+
+Затем перезапустите Resolume.
+
+Проверьте также путь в настройках Resolume:
+Preferences -> Video -> FFGL Directories
+
+Там должна быть папка:
+~/Documents/Resolume/Extra Effects
+
+ПРОВЕРКА АРХИТЕКТУРЫ
+--------------------
+
+В Terminal можно выполнить:
+
+file "$HOME/Documents/Resolume/Extra Effects/PackItLEDPattern.bundle/Contents/MacOS/PackItLEDPattern"
+
+В результате должны присутствовать обе архитектуры:
+arm64 и x86_64.
+
+УДАЛЕНИЕ
+--------
+
+Закройте Resolume и удалите:
+~/Documents/Resolume/Extra Effects/PackItLEDPattern.bundle
