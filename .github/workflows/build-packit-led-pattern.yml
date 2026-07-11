@@ -28,10 +28,22 @@ jobs:
         run: python resolume-led-pattern-test/prepare_project.py ffgl
 
       - name: Build x64 Release
+        id: compile
+        continue-on-error: true
         shell: pwsh
-        run: msbuild ffgl/build/windows/PackItLEDPattern.vcxproj /m /p:Configuration=Release /p:Platform=x64
+        run: |
+          msbuild ffgl/build/windows/PackItLEDPattern.vcxproj /m /p:Configuration=Release /p:Platform=x64 /fl /flp:"logfile=msbuild.log;verbosity=diagnostic"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Upload build log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: PackItLEDPattern-build-log
+          path: msbuild.log
 
       - name: Collect package
+        if: steps.compile.outcome == 'success'
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Path artifact | Out-Null
@@ -44,9 +56,15 @@ jobs:
           Compress-Archive -Path artifact/* -DestinationPath PackItLEDPattern-test-win64.zip -Force
 
       - name: Upload DLL and sources
+        if: steps.compile.outcome == 'success'
         uses: actions/upload-artifact@v4
         with:
           name: PackItLEDPattern-test-win64
           path: |
             artifact/PackItLEDPattern.dll
             PackItLEDPattern-test-win64.zip
+
+      - name: Fail workflow when compilation failed
+        if: steps.compile.outcome != 'success'
+        shell: pwsh
+        run: exit 1
