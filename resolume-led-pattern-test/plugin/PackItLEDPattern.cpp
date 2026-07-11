@@ -37,21 +37,21 @@ enum ParamID : FFUInt32
     PID_GLOW
 };
 
-float clamp01(float value)
+float clampUnit(float value)
 {
     return std::max(0.0f, std::min(1.0f, value));
 }
 
 float mapRange(float value, float outMin, float outMax)
 {
-    return outMin + clamp01(value) * (outMax - outMin);
+    return outMin + clampUnit(value) * (outMax - outMin);
 }
 
 float unmapRange(float value, float outMin, float outMax)
 {
     if (outMax == outMin)
         return 0.0f;
-    return clamp01((value - outMin) / (outMax - outMin));
+    return clampUnit((value - outMin) / (outMax - outMin));
 }
 }
 
@@ -129,21 +129,25 @@ float patternValue(vec2 p, float t)
 
     if (type < 0.5)
     {
+        // Kaleidoscope / flower
         float spokes = cos(folded * sym * 1.5 + r * 8.0 - t * 1.7);
         float rings = sin(r * 15.0 - t * 2.2);
         value = 0.5 + 0.25 * spokes + 0.25 * rings;
     }
     else if (type < 1.5)
     {
+        // Concentric rings
         value = 0.5 + 0.5 * sin(r * 20.0 - t * 3.0 + sin(a * sym) * 0.8);
     }
     else if (type < 2.5)
     {
+        // Star / radiating shape
         float starRadius = r * (1.0 + 0.35 * cos(a * sym));
         value = 0.5 + 0.5 * sin(starRadius * 17.0 - t * 2.4);
     }
     else if (type < 3.5)
     {
+        // Checker / tiled motion
         vec2 q = p * 5.0;
         q.x += t * 0.9;
         q.y += sin(t * 0.7) * 0.8;
@@ -152,12 +156,14 @@ float patternValue(vec2 p, float t)
     }
     else if (type < 4.5)
     {
+        // Crossed waves
         float w1 = sin(p.x * 12.0 + sin(p.y * 5.0 + t) * 2.0 - t * 2.0);
         float w2 = cos(p.y * 13.0 + sin(p.x * 4.0 - t) * 2.2 + t * 1.5);
         value = 0.5 + 0.25 * w1 + 0.25 * w2;
     }
     else
     {
+        // Spiral tunnel
         float spiral = a * sym * 0.55 + log(max(r, 0.03)) * 8.0 - t * 2.5;
         value = 0.5 + 0.5 * sin(spiral);
     }
@@ -205,6 +211,7 @@ void main()
     vec3 accumulated = vec3(0.0);
     float totalWeight = 0.0;
 
+    // Eight temporal samples. At zero blur all samples collapse to the same time.
     for (int i = 0; i < 8; ++i)
     {
         float fi = float(i) / 7.0;
@@ -220,6 +227,8 @@ void main()
     vec3 colour = accumulated / max(totalWeight, 0.001);
     float intensity = max(dotMask, glowMask);
     colour *= dotMask + glowMask;
+
+    // Keep empty space truly black while preserving a soft halo around lit dots.
     fragColor = vec4(colour, intensity);
 }
 )GLSL";
@@ -354,27 +363,27 @@ FFResult PackItLEDPattern::SetFloatParameter(unsigned int index, float value)
     switch (index)
     {
     case PID_PATTERN: pattern = value; break;
-    case PID_COLOR1_R: color1.r = clamp01(value); break;
-    case PID_COLOR1_G: color1.g = clamp01(value); break;
-    case PID_COLOR1_B: color1.b = clamp01(value); break;
-    case PID_COLOR2_R: color2.r = clamp01(value); break;
-    case PID_COLOR2_G: color2.g = clamp01(value); break;
-    case PID_COLOR2_B: color2.b = clamp01(value); break;
-    case PID_COLOR3_R: color3.r = clamp01(value); break;
-    case PID_COLOR3_G: color3.g = clamp01(value); break;
-    case PID_COLOR3_B: color3.b = clamp01(value); break;
-    case PID_COLOR4_R: color4.r = clamp01(value); break;
-    case PID_COLOR4_G: color4.g = clamp01(value); break;
-    case PID_COLOR4_B: color4.b = clamp01(value); break;
+    case PID_COLOR1_R: color1.r = clampUnit(value); break;
+    case PID_COLOR1_G: color1.g = clampUnit(value); break;
+    case PID_COLOR1_B: color1.b = clampUnit(value); break;
+    case PID_COLOR2_R: color2.r = clampUnit(value); break;
+    case PID_COLOR2_G: color2.g = clampUnit(value); break;
+    case PID_COLOR2_B: color2.b = clampUnit(value); break;
+    case PID_COLOR3_R: color3.r = clampUnit(value); break;
+    case PID_COLOR3_G: color3.g = clampUnit(value); break;
+    case PID_COLOR3_B: color3.b = clampUnit(value); break;
+    case PID_COLOR4_R: color4.r = clampUnit(value); break;
+    case PID_COLOR4_G: color4.g = clampUnit(value); break;
+    case PID_COLOR4_B: color4.b = clampUnit(value); break;
     case PID_DENSITY: density = mapRange(value, 12.0f, 180.0f); break;
-    case PID_DOT_SIZE: dotSize = clamp01(value); break;
+    case PID_DOT_SIZE: dotSize = clampUnit(value); break;
     case PID_SPEED: speed = mapRange(value, -2.0f, 2.0f); break;
     case PID_ROTATION: rotationSpeed = mapRange(value, -2.0f, 2.0f); break;
     case PID_SCALE: scale = mapRange(value, 0.45f, 7.0f); break;
     case PID_SYMMETRY: symmetry = value; break;
     case PID_FPS: animationFps = value; break;
-    case PID_MOTION_BLUR: motionBlur = clamp01(value); break;
-    case PID_GLOW: glow = clamp01(value); break;
+    case PID_MOTION_BLUR: motionBlur = clampUnit(value); break;
+    case PID_GLOW: glow = clampUnit(value); break;
     default: return FF_FAIL;
     }
 
