@@ -1,0 +1,70 @@
+name: Build PACK.IT LED Pattern
+
+on:
+  pull_request:
+    paths:
+      - 'resolume-led-pattern-test/**'
+      - '.github/workflows/build-packit-led-pattern.yml'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-2022
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v4
+
+      - name: Checkout official FFGL SDK
+        uses: actions/checkout@v4
+        with:
+          repository: resolume/ffgl
+          path: ffgl
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Prepare project
+        shell: pwsh
+        run: python resolume-led-pattern-test/prepare_project.py ffgl
+
+      - name: Build x64 Release
+        id: compile
+        continue-on-error: true
+        shell: pwsh
+        run: |
+          msbuild ffgl/build/windows/PackItLEDPattern.vcxproj /m /p:Configuration=Release /p:Platform=x64 /fl /flp:"logfile=msbuild.log;verbosity=diagnostic"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Upload build log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: PackItLEDPattern-v0.2a-build-log
+          path: msbuild.log
+
+      - name: Collect package
+        if: steps.compile.outcome == 'success'
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Path artifact | Out-Null
+          Copy-Item ffgl/binaries/x64/Release/PackItLEDPattern.dll artifact/
+          Copy-Item resolume-led-pattern-test/README_RU.md artifact/
+          Copy-Item resolume-led-pattern-test/build_and_install.ps1 artifact/
+          Copy-Item resolume-led-pattern-test/prepare_project.py artifact/
+          Copy-Item resolume-led-pattern-test/FFGLPlugins.def artifact/
+          Copy-Item -Recurse resolume-led-pattern-test/plugin artifact/plugin
+          Compress-Archive -Path artifact/* -DestinationPath PackItLEDPattern-v0.2a-win64.zip -Force
+
+      - name: Upload DLL and sources
+        if: steps.compile.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: PackItLEDPattern-v0.2a-win64
+          path: |
+            artifact/PackItLEDPattern.dll
+            PackItLEDPattern-v0.2a-win64.zip
+
+      - name: Fail workflow when compilation failed
+        if: steps.compile.outcome != 'success'
+        shell: pwsh
+        run: exit 1

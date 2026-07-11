@@ -1,0 +1,63 @@
+PACK.IT LED Pattern v0.2a — установка на macOS
+=================================================
+
+Сборка Universal: Apple Silicon arm64 + Intel x86_64.
+Минимальная версия macOS: 11.0.
+
+1. Полностью закройте Resolume Arena/Avenue.
+2. Распакуйте ZIP-архив.
+3. В Resolume откройте Preferences -> Video -> FFGL Directories и посмотрите фактическую папку плагинов.
+4. В Finder нажмите Cmd + Shift + G и вставьте этот путь.
+
+Чаще всего используется один из вариантов:
+
+~/Documents/Resolume/Extra Effects
+
+или:
+
+~/Documents/Resolume Arena/Extra Effects
+
+5. Если папки Extra Effects нет — создайте её.
+6. Скопируйте туда целиком:
+
+PackItLEDPattern.bundle
+
+7. Не открывайте bundle двойным кликом — его загружает Resolume.
+8. Запустите Resolume, откройте Sources и найдите:
+
+PK LED Pattern
+
+9. Перетащите источник в свободную ячейку клипа.
+
+ЕСЛИ MACOS БЛОКИРУЕТ ПЛАГИН
+---------------------------
+
+Откройте Terminal, напишите команду с пробелом в конце:
+
+xattr -dr com.apple.quarantine 
+
+Затем перетащите PackItLEDPattern.bundle из Finder прямо в окно Terminal и нажмите Enter. Так macOS сама подставит точный путь без ошибок.
+
+При необходимости локально переподпишите bundle:
+
+codesign --force --deep --sign - "/точный/путь/PackItLEDPattern.bundle"
+
+После этого полностью перезапустите Resolume.
+
+ПРОВЕРКА АРХИТЕКТУРЫ
+--------------------
+
+file "/точный/путь/PackItLEDPattern.bundle/Contents/MacOS/PackItLEDPattern"
+
+В результате должны присутствовать обе архитектуры:
+arm64 и x86_64.
+
+ОБНОВЛЕНИЕ С v0.1
+-----------------
+
+Закройте Resolume и замените старый PackItLEDPattern.bundle новым. Имя и FFGL ID сохранены, поэтому основные параметры существующих клипов должны продолжить загружаться.
+
+УДАЛЕНИЕ
+--------
+
+Закройте Resolume и удалите PackItLEDPattern.bundle из активной FFGL Directory.

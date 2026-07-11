@@ -1,0 +1,44 @@
+name: Build PACK.IT LED Pattern macOS
+
+on:
+  pull_request:
+    paths:
+      - 'resolume-led-pattern-test/**'
+      - '.github/workflows/build-packit-led-pattern-macos.yml'
+  workflow_dispatch:
+
+jobs:
+  build-macos-universal:
+    runs-on: macos-14
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v4
+
+      - name: Checkout official FFGL SDK
+        uses: actions/checkout@v4
+        with:
+          repository: resolume/ffgl
+          path: ffgl
+
+      - name: Build universal bundle
+        shell: bash
+        run: |
+          chmod +x resolume-led-pattern-test/build_macos_universal.sh
+          ./resolume-led-pattern-test/build_macos_universal.sh "$GITHUB_WORKSPACE/ffgl" "$GITHUB_WORKSPACE/dist-macos"
+
+      - name: Inspect bundle
+        shell: bash
+        run: |
+          file dist-macos/PackItLEDPattern.bundle/Contents/MacOS/PackItLEDPattern
+          lipo -archs dist-macos/PackItLEDPattern.bundle/Contents/MacOS/PackItLEDPattern
+          nm -gU dist-macos/PackItLEDPattern.bundle/Contents/MacOS/PackItLEDPattern | grep -E ' _plugMain$'
+          codesign --verify --deep --strict --verbose=2 dist-macos/PackItLEDPattern.bundle
+
+      - name: Upload macOS package
+        uses: actions/upload-artifact@v4
+        with:
+          name: PackItLEDPattern-v0.2a-mac-universal
+          path: |
+            dist-macos/PackItLEDPattern-v0.2a-mac-universal.zip
+            dist-macos/PackItLEDPattern.bundle
+            dist-macos/INSTALL_MAC_RU.txt
