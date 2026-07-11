@@ -36,9 +36,9 @@ cat > "$BUNDLE_DIR/Contents/Info.plist" <<'PLIST'
   <key>CFBundlePackageType</key>
   <string>BNDL</string>
   <key>CFBundleShortVersionString</key>
-  <string>0.1</string>
+  <string>0.2</string>
   <key>CFBundleVersion</key>
-  <string>1</string>
+  <string>2</string>
   <key>LSMinimumSystemVersion</key>
   <string>11.0</string>
   <key>NSHighResolutionCapable</key>
@@ -83,13 +83,12 @@ codesign --verify --deep --strict --verbose=2 "$BUNDLE_DIR"
 
 cp "$ROOT_DIR/INSTALL_MAC_RU.txt" "$OUTPUT_DIR/INSTALL_MAC_RU.txt"
 
-PACKAGE="$OUTPUT_DIR/PackItLEDPattern-v0.1-mac-universal.zip"
+PACKAGE="$OUTPUT_DIR/PackItLEDPattern-v0.2a-mac-universal.zip"
 (
   cd "$OUTPUT_DIR"
   ditto -c -k --sequesterRsrc --keepParent "$BUNDLE_NAME" "$(basename "$PACKAGE")"
 )
 
-# Add the installation guide into the same archive.
 TMP_UNZIP="$OUTPUT_DIR/package-temp"
 mkdir -p "$TMP_UNZIP"
 ditto -x -k "$PACKAGE" "$TMP_UNZIP"
