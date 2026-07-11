@@ -39,7 +39,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: PackItLEDPattern-build-log
+          name: PackItLEDPattern-v0.2a-build-log
           path: msbuild.log
 
       - name: Collect package
@@ -53,16 +53,16 @@ jobs:
           Copy-Item resolume-led-pattern-test/prepare_project.py artifact/
           Copy-Item resolume-led-pattern-test/FFGLPlugins.def artifact/
           Copy-Item -Recurse resolume-led-pattern-test/plugin artifact/plugin
-          Compress-Archive -Path artifact/* -DestinationPath PackItLEDPattern-test-win64.zip -Force
+          Compress-Archive -Path artifact/* -DestinationPath PackItLEDPattern-v0.2a-win64.zip -Force
 
       - name: Upload DLL and sources
         if: steps.compile.outcome == 'success'
         uses: actions/upload-artifact@v4
         with:
-          name: PackItLEDPattern-test-win64
+          name: PackItLEDPattern-v0.2a-win64
           path: |
             artifact/PackItLEDPattern.dll
-            PackItLEDPattern-test-win64.zip
+            PackItLEDPattern-v0.2a-win64.zip
 
       - name: Fail workflow when compilation failed
         if: steps.compile.outcome != 'success'
